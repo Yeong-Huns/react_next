@@ -12,7 +12,7 @@ type Todo = {
     title: string;
     start_date: Date;
     end_date: Date;
-    content: string;
+    content: [];
 }
 
 export const SideNavigation = () => {
@@ -25,26 +25,35 @@ export const SideNavigation = () => {
         const {error, status} = await supabase.from('todos').insert([
             {
                 title: "",
-                start_date: "",
-                end_date: "",
-                content: ""
+                start_date: new Date(),
+                end_date: new Date(),
+                contents: []
             },
-        ])
+        ]).select()
 
         if (error) {
             console.log('error', error);
         }
+
+        const { data } = await supabase.from('todos').select();
+
         if (status === 201) {
             toast({
                 title: "생성 완료",
                 description: "새로운 TodoList 생성에 성공하였습니다."
             })
-            router.push('/create')
+
+            if(data) router.push(`/create/${data[data?.length - 1].id}`);
+            else return
         }
     }
 
     const getTodos = async () => {
         const {data, error, status} = await supabase.from('todos').select('*');
+
+        if(error) {
+            console.log('error', error);
+        }
 
         if (status === 200) {
             setTodos(data);
