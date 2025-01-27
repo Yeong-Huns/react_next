@@ -4,8 +4,7 @@ import {Input} from "@/components/ui/input";
 
 export const SideNavigation = () => {
     return <div className={'flex flex-col w-[280px] h-screen py-5 px-6 border-x border-gray-200 gap-1'}>
-        {/*검색창*/}
-        <div className={'flex items-center justify-start'}>{/*컨테이너 _검색창*/}
+        <div className={'flex items-center justify-start gap-1'}>
             <Input type={'text'} placeholder={'검색어를 입력해주세요'} className={'focus-visible:ring-0'}/>
             <Button variant={'outline'} size={"icon"}>
                 <Search className={'w-4 h-4'}/>
