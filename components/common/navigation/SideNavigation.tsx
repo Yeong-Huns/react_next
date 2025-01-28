@@ -62,7 +62,7 @@ export const SideNavigation = () => {
 
     useEffect(() => {
         getTodos();
-    }, [])
+    }, [todos])
 
     return <div className={'flex flex-col w-[280px] h-screen py-5 px-6 border-x border-gray-200 gap-1'}>
         <div className={'flex items-center justify-start gap-1'}>

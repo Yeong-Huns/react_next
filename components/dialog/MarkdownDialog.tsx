@@ -9,10 +9,15 @@ import MDEditor from "@uiw/react-md-editor";
 import {ChangeEvent, useState} from "react";
 import {useToast} from "@/hooks/use-toast";
 import {supabase} from "@/utils/supabase";
+import {BoardContent, Todo} from "@/app/create/[id]/page";
+import {usePathname} from "next/navigation";
 
 export const MarkdownDialog = () => {
+    const pathname = usePathname();
     const [open, setOpen] = useState<boolean>(false);
     const [contents, setContents] = useState<string | undefined>("**마크다운 문법을 지원합니다!**");
+    const [startDate, setStartDate] = useState<Date | undefined>(new Date());
+    const [endDate, setEndDate] = useState<Date | undefined>(new Date());
     const { toast } = useToast()
     const [title, setTitle] = useState<string>("")
 
@@ -20,8 +25,8 @@ export const MarkdownDialog = () => {
     *
     * */
     const onSubmit = async () => {
-        console.log("onSubmit")
-        if(!title || !contents) {
+        /*console.log("onSubmit")*/
+        if(!title || !startDate || !endDate || !contents) {
             toast({
                 title: "입력되지 않은 필수 요소가 존재합니다.",
                 description: "제목, 날짜, 콘텐츠 내용을 모두 입력해주세요.",
@@ -29,28 +34,45 @@ export const MarkdownDialog = () => {
             return;
         } else {
             // SUPABASE 연동
-            const { data, error, status } = await supabase
-                .from('todos')
-                .insert([
-                    { title: title, content: contents },
-                ])
-                .select()
-            if(error){
-                console.log(error)
-                toast({
-                    title: "저장에 실패하였습니다.",
-                    description: "데이터 저장중 서버 오류가 발생했습니다."
-                })
-            }
-            if(status === 201){
-                toast({
-                    title: "저장 완료",
-                    description: "성공적으로 저장되었습니다!"
-                })
+            const {data} = await supabase.from("todos").select("*");
 
-                // 추가 초기화 로직
-                setOpen(false);
+            if(data !== null) {
+                data.forEach(async (item: Todo)=> {
+                    if(item.id === Number(pathname.split("/")[2])){
+                        item.contents.forEach((eachBoard: BoardContent)=>{
+                            if(eachBoard.boardId === item.id){
+                                eachBoard.title = title;
+                                eachBoard.content = contents;
+                                eachBoard.start_date = startDate;
+                                eachBoard.end_date = endDate;
+                            }
+                        })
+                        const { error, status } = await supabase
+                            .from('todos')
+                            .update([
+                                { content: item.contents },
+                            ]).eq("id", pathname.split("/")[2]);
+
+                        if(error){
+                            console.log(error)
+                            toast({
+                                title: "저장에 실패하였습니다.",
+                                description: "데이터 저장중 서버 오류가 발생했습니다."
+                            })
+                        }
+                        if(status === 204){
+                            toast({
+                                title: "수정 완료",
+                                description: "성공적으로 저장되었습니다!"
+                            })
+
+                            // 추가 초기화 로직
+                            setOpen(false);
+                        }
+                    }
+                })
             }
+            else return;
         }
     }
 
