@@ -14,7 +14,7 @@ interface Props {
 }
 
 export const LabelCalendar = ({label, readonly}: Props) => {
-    const [date, setDate] = useState<Date>();
+    const [date, setDate] = useState<Date | undefined>(new Date());
 
     return <div className={'flex items-center gap-3'}>
         <span className={'text-gray-600'}>{label}</span>

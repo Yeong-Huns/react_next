@@ -12,7 +12,11 @@ import {supabase} from "@/utils/supabase";
 import {BoardContent, Todo} from "@/app/create/[id]/page";
 import {usePathname} from "next/navigation";
 
-export const MarkdownDialog = () => {
+type Props = {
+    data: BoardContent;
+}
+
+export const MarkdownDialog = ({data}: Props) => {
     const pathname = usePathname();
     const [open, setOpen] = useState<boolean>(false);
     const [contents, setContents] = useState<string | undefined>("**마크다운 문법을 지원합니다!**");
@@ -35,12 +39,12 @@ export const MarkdownDialog = () => {
         } else {
             // SUPABASE 연동
             const {data} = await supabase.from("todos").select("*");
-
+            console.log(data);
             if(data !== null) {
                 data.forEach(async (item: Todo)=> {
                     if(item.id === Number(pathname.split("/")[2])){
                         item.contents.forEach((eachBoard: BoardContent)=>{
-                            if(eachBoard.boardId === item.id){
+                            if(eachBoard.boardId === "rTdIKhQq_E6QLZQdSZtPe"){
                                 eachBoard.title = title;
                                 eachBoard.content = contents;
                                 eachBoard.start_date = startDate;
@@ -50,7 +54,7 @@ export const MarkdownDialog = () => {
                         const { error, status } = await supabase
                             .from('todos')
                             .update([
-                                { content: item.contents },
+                                { contents: item.contents },
                             ]).eq("id", pathname.split("/")[2]);
 
                         if(error){
